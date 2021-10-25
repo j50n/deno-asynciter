@@ -99,8 +99,8 @@ export class AsyncIterableExtras<T> implements AsyncIterable<T> {
   public async foreach(
     foreachFn: (item: T) => void | Promise<void>,
   ): Promise<void> {
-    for await(const item of this.iterator){
-        await foreachFn(item);
+    for await (const item of this.iterator) {
+      await foreachFn(item);
     }
   }
 
@@ -108,9 +108,9 @@ export class AsyncIterableExtras<T> implements AsyncIterable<T> {
    * Return the first item of the sequence.
    * @return The first item of the sequence.
    */
-   public async first(): Promise<T|null> {
-    for await(const item of this.iterator){
-        return item;
+  public async first(): Promise<T | null> {
+    for await (const item of this.iterator) {
+      return item;
     }
     return null;
   }
