@@ -2,7 +2,7 @@
  * Convert an array into an {@link AsyncIterableIterator}.
  * @param items An array of items.
  */
-export async function* toAsyncIterable<T>(
+async function* toAsyncIterable<T>(
   items: Array<T>,
 ): AsyncIterableIterator<T> {
   yield* items;
@@ -15,23 +15,38 @@ export async function* toAsyncIterable<T>(
  */
 export function ex<T>(
   iterator: AsyncIterable<T> | Array<T>,
-): AsyncIterableExtras<T> {
+): AsyncIter<T> {
   if (iterator instanceof Array) {
     return ex(toAsyncIterable(iterator));
   } else {
-    return new AsyncIterableExtras(iterator);
+    return new AsyncIter(iterator);
   }
+}
+
+/**
+ * Convert an array or a standard {@link AsyncIterable} to an {@link AsyncIter}.
+ * @param items A collection of items.
+ * @returns Items as an {@link AsyncIter}.
+ */
+export function asyncIter<T>(items: AsyncIterable<T> | Array<T>): AsyncIter<T> {
+  return new AsyncIter(items);
 }
 
 /**
  * A decorator for `AsyncIterable`.
  */
-export class AsyncIterableExtras<T> implements AsyncIterable<T> {
+export class AsyncIter<T> implements AsyncIterable<T> {
+  protected iterator: AsyncIterable<T>;
   /**
    * Constructor.
    * @param iterator The wrapped iterator.
    */
-  constructor(protected iterator: AsyncIterable<T>) {
+  constructor(items: AsyncIterable<T> | Array<T>) {
+    if (Array.isArray(items)) {
+      this.iterator = toAsyncIterable(items);
+    } else {
+      this.iterator = items;
+    }
   }
 
   public async *[Symbol.asyncIterator](): AsyncGenerator<T, void, unknown> {
@@ -45,9 +60,9 @@ export class AsyncIterableExtras<T> implements AsyncIterable<T> {
    * @param mapFn The mapping function.
    * @returns An iterable of mapped values.
    */
-  public map<U>(mapFn: (item: T) => U | Promise<U>): AsyncIterableExtras<U> {
+  public map<U>(mapFn: (item: T) => U | Promise<U>): AsyncIter<U> {
     const iterable = this.iterator;
-    return new AsyncIterableExtras({
+    return new AsyncIter({
       async *[Symbol.asyncIterator]() {
         yield* map(iterable, mapFn);
       },
@@ -61,9 +76,9 @@ export class AsyncIterableExtras<T> implements AsyncIterable<T> {
    */
   public filter<U>(
     filterFn: (item: T) => boolean | Promise<boolean>,
-  ): AsyncIterableExtras<T> {
+  ): AsyncIter<T> {
     const iterator = this.iterator;
-    return new AsyncIterableExtras({
+    return new AsyncIter({
       async *[Symbol.asyncIterator]() {
         for await (const item of iterator) {
           if (await filterFn(item)) {
@@ -118,12 +133,20 @@ export class AsyncIterableExtras<T> implements AsyncIterable<T> {
    * @returns The items of this iterator collected to an array.
    */
   public async collect(): Promise<T[]> {
-    const result = [];
-    for await (const item of this.iterator) {
-      result.push(item);
-    }
-    return result;
+    return await collect(this.iterator);
   }
+}
+
+/**
+ * Collect the items in this iterator to an array.
+ * @returns The items of this iterator collected to an array.
+ */
+export async function collect<T>(iterable: AsyncIterable<T>): Promise<T[]> {
+  const result = [];
+  for await (const item of iterable) {
+    result.push(item);
+  }
+  return result;
 }
 
 /**
