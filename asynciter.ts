@@ -9,21 +9,6 @@ async function* toAsyncIterable<T>(
 }
 
 /**
- * Factory function for {@link AsyncIterableExtras}.
- * @param iterator The wrapped iterator.
- * @returns
- */
-export function ex<T>(
-  iterator: AsyncIterable<T> | Array<T>,
-): AsyncIter<T> {
-  if (iterator instanceof Array) {
-    return ex(toAsyncIterable(iterator));
-  } else {
-    return new AsyncIter(iterator);
-  }
-}
-
-/**
  * Convert an array or a standard {@link AsyncIterable} to an {@link AsyncIter}.
  * @param items A collection of items.
  * @returns Items as an {@link AsyncIter}.
