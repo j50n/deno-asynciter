@@ -1,5 +1,7 @@
 import { assertArrayIncludes } from "../deps/asserts.ts";
-import { asyncIter, collect, map } from "../asynciter.ts";
+import { asyncIter } from "../asynciter.ts";
+import { collect } from "../collect.ts";
+import { map } from "../map.ts";
 
 Deno.test("function map some values", async () => {
   assertArrayIncludes<string>(

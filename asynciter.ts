@@ -1,3 +1,7 @@
+import { collect } from "./collect.ts";
+import { filter } from "./filter.ts";
+import { map } from "./map.ts";
+
 /**
  * Convert an array into an {@link AsyncIterableIterator}.
  * @param items An array of items.
@@ -22,15 +26,16 @@ export function asyncIter<T>(items: AsyncIterable<T> | Array<T>): AsyncIter<T> {
  */
 export class AsyncIter<T> implements AsyncIterable<T> {
   protected iterator: AsyncIterable<T>;
+
   /**
    * Constructor.
-   * @param iterator The wrapped iterator.
+   * @param iterable The wrapped iterable.
    */
-  constructor(items: AsyncIterable<T> | Array<T>) {
-    if (Array.isArray(items)) {
-      this.iterator = toAsyncIterable(items);
+  constructor(iterable: AsyncIterable<T> | Array<T>) {
+    if (Array.isArray(iterable)) {
+      this.iterator = toAsyncIterable(iterable);
     } else {
-      this.iterator = items;
+      this.iterator = iterable;
     }
   }
 
@@ -59,17 +64,13 @@ export class AsyncIter<T> implements AsyncIterable<T> {
    * @param filterFn The filter function.
    * @returns An iterator returning the values that passed the filter function.
    */
-  public filter<U>(
+  public filter(
     filterFn: (item: T) => boolean | Promise<boolean>,
   ): AsyncIter<T> {
-    const iterator = this.iterator;
+    const iterable = this.iterator;
     return new AsyncIter({
       async *[Symbol.asyncIterator]() {
-        for await (const item of iterator) {
-          if (await filterFn(item)) {
-            yield item;
-          }
-        }
+        yield* filter(iterable, filterFn);
       },
     });
   }
@@ -119,32 +120,5 @@ export class AsyncIter<T> implements AsyncIterable<T> {
    */
   public async collect(): Promise<T[]> {
     return await collect(this.iterator);
-  }
-}
-
-/**
- * Collect the items in this iterator to an array.
- * @returns The items of this iterator collected to an array.
- */
-export async function collect<T>(iterable: AsyncIterable<T>): Promise<T[]> {
-  const result = [];
-  for await (const item of iterable) {
-    result.push(item);
-  }
-  return result;
-}
-
-/**
- * Map the sequence from one type to another.
- * @param iterable An iterable collection.
- * @param mapFn The mapping function.
- * @returns An iterator of mapped values.
- */
-export async function* map<T, U>(
-  iterable: AsyncIterable<T>,
-  mapFn: (item: T) => U | Promise<U>,
-): AsyncIterableIterator<U> {
-  for await (const item of iterable) {
-    yield await mapFn(item);
   }
 }
