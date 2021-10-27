@@ -26,7 +26,7 @@ jobs:
         uses: denoland/setup-deno@v1
         # uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e9833173669
         with:
-          deno-version: v1.14.x
+          deno-version: v1.x.x
 
       # Uncomment this step to verify the use of 'deno fmt' on each commit.
       # - name: Verify formatting
