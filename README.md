@@ -1,3 +1,5 @@
+![example workflow](https://github.com/j50n/deno-asynciter/actions/workflows/deno.yml/badge.svg)
+
 # Better AsyncIterables for Deno
 
 Early days. I am still working out the details of the first version of this
