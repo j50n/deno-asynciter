@@ -1,6 +1,9 @@
 import { collect } from "./collect.ts";
 import { filter } from "./filter.ts";
+import { first } from "./first.ts";
+import { forEach } from "./for-each.ts";
 import { map } from "./map.ts";
+import { reduce } from "./reduce.ts";
 
 /**
  * Convert an array into an {@link AsyncIterableIterator}.
@@ -76,7 +79,7 @@ export class AsyncIter<T> implements AsyncIterable<T> {
   }
 
   /**
-   * Reduce a sequence to a single number.
+   * Reduce a sequence to a single value.
    * @param reduce The reducing function.
    * @returns The result of applying the reducing function to each item and accumulating the result.
    */
@@ -84,23 +87,17 @@ export class AsyncIter<T> implements AsyncIterable<T> {
     zero: U,
     reduceFn: (acc: U, item: T) => U | Promise<U>,
   ): Promise<U> {
-    let acc = zero;
-    for await (const item of this.iterator) {
-      acc = await reduceFn(acc, item);
-    }
-    return acc;
+    return await reduce(this.iterator, zero, reduceFn);
   }
 
   /**
    * Perform an operation for each item in the sequence.
-   * @param foreachFn The foreach function.
+   * @param forEachFn The forEach function.
    */
-  public async foreach(
-    foreachFn: (item: T) => void | Promise<void>,
+  public async forEach(
+    forEachFn: (item: T) => void | Promise<void>,
   ): Promise<void> {
-    for await (const item of this.iterator) {
-      await foreachFn(item);
-    }
+    await forEach(this.iterator, forEachFn);
   }
 
   /**
@@ -108,10 +105,7 @@ export class AsyncIter<T> implements AsyncIterable<T> {
    * @return The first item of the sequence.
    */
   public async first(): Promise<T | null> {
-    for await (const item of this.iterator) {
-      return item;
-    }
-    return null;
+    return await first(this.iterator);
   }
 
   /**

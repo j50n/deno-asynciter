@@ -1,14 +1,66 @@
 ![example workflow](https://github.com/j50n/deno-asynciter/actions/workflows/deno.yml/badge.svg?branch=main)
 
-# Better AsyncIterables for Deno
+# AsyncIter: Better AsyncIterables for Deno
 
-Early days. I am still working out the details of the first version of this
-library. Expect the API to be unstable for a bit longer, and try it out if you
-want. The tests should provide a few nice examples until I can write some proper
-documentation.
+I just want to work with `AsyncIterable` collections without using `for` loops.
+Is that so wrong?
 
-## Notes
+This little library exposes both functions and a fluent-style wrapper so I can
+write my lazy code the way I want to: lazily.
 
-- The function versions of each operation are broken out into separate files.
-  You don't have to load in the whole library if you just want to use
-  `collect()`, for example.
+## Quickstart
+
+Here are some simple examples to get you started.
+
+### Convert an `Array` to `AsyncIterable`
+
+```typescript
+const iter = asyncIter([1, 2, 3]);
+```
+
+### map
+
+```typescript
+console.dir(await asyncIter([1, 2, 3]).map((it) => it * 2).collect());
+// [ 2, 4, 6 ]
+```
+
+### filter
+
+```typescript
+console.dir(await asyncIter([1, 2, 3]).filter((it) => it > 1).collect());
+// [ 2, 3 ]
+```
+
+### reduce
+
+```typescript
+console.dir(await asyncIter([1, 2, 3]).reduce(0, (a, b) => a + b));
+// 6
+```
+
+### forEach
+
+```typescript
+await asyncIter([1, 2, 3]).forEach((it) => console.log(it));
+// 1
+// 2
+// 3
+```
+
+### first
+
+```typescript
+const iter = asyncIter([1, 2, 3]);
+console.dir(await iter.first());
+console.dir(await iter.first());
+// 1
+// null
+```
+
+### collect
+
+```typescript
+console.dir(await asyncIter([1, 2, 3]).collect());
+// [ 1, 2, 3 ]
+```
