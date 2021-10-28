@@ -16,6 +16,9 @@ Here are some simple examples to get you started.
 
 ```typescript
 const iter = asyncIter([1, 2, 3]);
+for await (const it of iter) {
+  console.log(it);
+}
 ```
 
 ### map
