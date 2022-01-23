@@ -15,7 +15,7 @@ Here are some simple examples to get you started.
 ### Convert an `Array` to `AsyncIterable`
 
 ```typescript
-const iter = asyncIter([1, 2, 3]);
+const iter = asynciter([1, 2, 3]);
 for await (const it of iter) {
   console.log(it);
 }
@@ -24,28 +24,28 @@ for await (const it of iter) {
 ### map
 
 ```typescript
-console.dir(await asyncIter([1, 2, 3]).map((it) => it * 2).collect());
+console.dir(await asynciter([1, 2, 3]).map((it) => it * 2).collect());
 // [ 2, 4, 6 ]
 ```
 
 ### filter
 
 ```typescript
-console.dir(await asyncIter([1, 2, 3]).filter((it) => it > 1).collect());
+console.dir(await asynciter([1, 2, 3]).filter((it) => it > 1).collect());
 // [ 2, 3 ]
 ```
 
 ### reduce
 
 ```typescript
-console.dir(await asyncIter([1, 2, 3]).reduce(0, (a, b) => a + b));
+console.dir(await asynciter([1, 2, 3]).reduce(0, (a, b) => a + b));
 // 6
 ```
 
 ### forEach
 
 ```typescript
-await asyncIter([1, 2, 3]).forEach((it) => console.log(it));
+await asynciter([1, 2, 3]).forEach((it) => console.log(it));
 // 1
 // 2
 // 3
@@ -54,7 +54,7 @@ await asyncIter([1, 2, 3]).forEach((it) => console.log(it));
 ### first
 
 ```typescript
-const iter = asyncIter([1, 2, 3]);
+const iter = asynciter([1, 2, 3]);
 console.dir(await iter.first());
 console.dir(await iter.first());
 // 1
@@ -64,6 +64,6 @@ console.dir(await iter.first());
 ### collect
 
 ```typescript
-console.dir(await asyncIter([1, 2, 3]).collect());
+console.dir(await asynciter([1, 2, 3]).collect());
 // [ 1, 2, 3 ]
 ```

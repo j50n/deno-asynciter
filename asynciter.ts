@@ -20,7 +20,7 @@ async function* toAsyncIterable<T>(
  * @param items A collection of items.
  * @returns Items as an {@link AsyncIter}.
  */
-export function asyncIter<T>(items: AsyncIterable<T> | Array<T>): AsyncIter<T> {
+export function asynciter<T>(items: AsyncIterable<T> | Array<T>): AsyncIter<T> {
   return new AsyncIter(items);
 }
 
