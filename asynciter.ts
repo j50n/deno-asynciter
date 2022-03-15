@@ -1,4 +1,5 @@
 import { collect } from "./collect.ts";
+import { concurrentMap } from "./concurrent-map.ts";
 import { filter } from "./filter.ts";
 import { first } from "./first.ts";
 import { forEach } from "./for-each.ts";
@@ -10,7 +11,7 @@ import { reduce } from "./reduce.ts";
  * @param items An array of items.
  */
 async function* toAsyncIterable<T>(
-  items: Array<T>,
+  items: Iterable<T> | AsyncIterable<T> | Array<T>,
 ): AsyncIterableIterator<T> {
   yield* items;
 }
@@ -20,7 +21,9 @@ async function* toAsyncIterable<T>(
  * @param items A collection of items.
  * @returns Items as an {@link AsyncIter}.
  */
-export function asynciter<T>(items: AsyncIterable<T> | Array<T>): AsyncIter<T> {
+export function asynciter<T>(
+  items: Iterable<T> | AsyncIterable<T> | Array<T>,
+): AsyncIter<T> {
   return new AsyncIter(items);
 }
 
@@ -34,12 +37,8 @@ export class AsyncIter<T> implements AsyncIterable<T> {
    * Constructor.
    * @param iterable The wrapped iterable.
    */
-  constructor(iterable: AsyncIterable<T> | Array<T>) {
-    if (Array.isArray(iterable)) {
-      this.iterator = toAsyncIterable(iterable);
-    } else {
-      this.iterator = iterable;
-    }
+  constructor(iterable: Iterable<T> | AsyncIterable<T> | Array<T>) {
+    this.iterator = toAsyncIterable(iterable);
   }
 
   public async *[Symbol.asyncIterator](): AsyncGenerator<T, void, unknown> {
@@ -58,6 +57,26 @@ export class AsyncIter<T> implements AsyncIterable<T> {
     return new AsyncIter({
       async *[Symbol.asyncIterator]() {
         yield* map(iterable, mapFn);
+      },
+    });
+  }
+
+  /**
+   * Map the sequence from one type to another, concurrently.
+   * Results are returned in order.
+   *
+   * @param mapFn The mapping function.
+   * @param concurrency The maximum concurrency.
+   * @returns An iterable of mapped values.
+   */
+  public concurrentMap<U>(
+    mapFn: (item: T) => Promise<U>,
+    concurrency?: number,
+  ): AsyncIter<U> {
+    const iterable = this.iterator;
+    return new AsyncIter({
+      async *[Symbol.asyncIterator]() {
+        yield* concurrentMap(iterable, mapFn, concurrency);
       },
     });
   }

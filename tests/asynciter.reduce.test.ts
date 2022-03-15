@@ -1,5 +1,5 @@
 import { asynciter } from "../asynciter.ts";
-import { assertEquals } from "../deps/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.129.0/testing/asserts.ts";
 import { reduce } from "../reduce.ts";
 
 Deno.test("function reduce some values", async () => {

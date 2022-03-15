@@ -28,6 +28,29 @@ console.dir(await asynciter([1, 2, 3]).map((it) => it * 2).collect());
 // [ 2, 4, 6 ]
 ```
 
+### [concurrent-map.ts](./concurrent-map.ts)
+
+There are four items in the array, but the operation will run in about two
+seconds because the operation is concurrent.
+
+```ts
+function delayedDouble(delay: number): (n: number) => Promise<string> {
+  return (n: number) =>
+    new Promise((resolve, _reject) => {
+      setTimeout(() => {
+        resolve(2 * n);
+      }, delay);
+    });
+}
+
+await asynciter([1, 2, 3, 4]).concurrentMap(
+  delayedDouble(1000),
+  2,
+).collect();
+
+// [2, 4, 6, 8]
+```
+
 ### filter
 
 ```typescript
