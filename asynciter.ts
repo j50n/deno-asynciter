@@ -1,5 +1,5 @@
 import { collect } from "./collect.ts";
-import { concurrentMap } from "./concurrent-map.ts";
+import { concurrentDisorderedMap, concurrentMap } from "./concurrent-map.ts";
 import { filter } from "./filter.ts";
 import { first } from "./first.ts";
 import { forEach } from "./for-each.ts";
@@ -63,6 +63,7 @@ export class AsyncIter<T> implements AsyncIterable<T> {
 
   /**
    * Map the sequence from one type to another, concurrently.
+   *
    * Results are returned in order.
    *
    * @param mapFn The mapping function.
@@ -77,6 +78,29 @@ export class AsyncIter<T> implements AsyncIterable<T> {
     return new AsyncIter({
       async *[Symbol.asyncIterator]() {
         yield* concurrentMap(iterable, mapFn, concurrency);
+      },
+    });
+  }
+
+  /**
+   * Map the sequence from one type to another, concurrently.
+   *
+   * Items are iterated out of order. This allows maximum concurrency
+   * at all times, but the output order cannot be assumed to be the
+   * same as the input order.
+   *
+   * @param mapFn The mapping function.
+   * @param concurrency The maximum concurrency.
+   * @returns An iterable of mapped values.
+   */
+  public concurrentDisorderedMap<U>(
+    mapFn: (item: T) => Promise<U>,
+    concurrency?: number,
+  ): AsyncIter<U> {
+    const iterable = this.iterator;
+    return new AsyncIter({
+      async *[Symbol.asyncIterator]() {
+        yield* concurrentDisorderedMap(iterable, mapFn, concurrency);
       },
     });
   }
