@@ -52,7 +52,7 @@ export async function* concurrentMap<T, U>(
  * @param mapFn The mapping function.
  * @returns An iterator of mapped values.
  */
-export async function* concurrentDisorderedMap<T, U>(
+export async function* concurrentUnorderedMap<T, U>(
   items: AsyncIterable<T>,
   mapFn: (item: T) => Promise<U>,
   concurrency?: number,

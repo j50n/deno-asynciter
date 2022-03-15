@@ -32,7 +32,7 @@ Deno.test({
     assertEquals(
       new Set(
         await asynciter(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"])
-          .concurrentDisorderedMap(
+          .concurrentUnorderedMap(
             delayedResult(() => Math.ceil(10 + Math.random() * 100)),
             3,
           ).collect(),

@@ -1,5 +1,5 @@
 import { collect } from "./collect.ts";
-import { concurrentDisorderedMap, concurrentMap } from "./concurrent-map.ts";
+import { concurrentUnorderedMap, concurrentMap } from "./concurrent-map.ts";
 import { filter } from "./filter.ts";
 import { first } from "./first.ts";
 import { forEach } from "./for-each.ts";
@@ -93,14 +93,14 @@ export class AsyncIter<T> implements AsyncIterable<T> {
    * @param concurrency The maximum concurrency.
    * @returns An iterable of mapped values.
    */
-  public concurrentDisorderedMap<U>(
+  public concurrentUnorderedMap<U>(
     mapFn: (item: T) => Promise<U>,
     concurrency?: number,
   ): AsyncIter<U> {
     const iterable = this.iterator;
     return new AsyncIter({
       async *[Symbol.asyncIterator]() {
-        yield* concurrentDisorderedMap(iterable, mapFn, concurrency);
+        yield* concurrentUnorderedMap(iterable, mapFn, concurrency);
       },
     });
   }
