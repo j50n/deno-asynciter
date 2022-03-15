@@ -59,29 +59,30 @@ export async function* concurrentDisorderedMap<T, U>(
 ): AsyncIterableIterator<U> {
   const c = resolvedConcurrency(concurrency);
 
-  const buffer: Esimorp<U>[] = [];
+  const buffBack: Esimorp<U>[] = [];
+  const buffAwait: Esimorp<U>[] = [];
 
   for await (const item of items) {
-    if (buffer.length >= c) {
-      yield await buffer[0].promise;
-      buffer.shift();
+    if (buffAwait.length >= c) {
+      yield await buffAwait.shift()!.promise;
     }
 
-    buffer.push(esimorp());
+    const p: Esimorp<U> = esimorp();
+    buffBack.push(p);
+    buffAwait.push(p);
 
     (async () => {
       try {
         const transItem = await mapFn(item);
-        buffer[0].resolve(transItem);
+        buffBack.shift()!.resolve(transItem);
       } catch (e) {
-        buffer[0].reject(e);
+        buffBack.shift()!.reject(e);
       }
     })();
   }
 
-  while (buffer.length > 0) {
-    yield await buffer[0].promise;
-    buffer.shift();
+  while (buffAwait.length > 0) {
+    yield await buffAwait.shift()!.promise;
   }
 }
 

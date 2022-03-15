@@ -31,12 +31,13 @@ Deno.test({
   async fn() {
     assertEquals(
       new Set(
-        await asynciter(["a", "b", "c", "d", "e", "f"]).concurrentDisorderedMap(
-          delayedResult(() => Math.ceil(10 + Math.random() * 50)),
-          2,
-        ).collect(),
+        await asynciter(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"])
+          .concurrentDisorderedMap(
+            delayedResult(() => Math.ceil(10 + Math.random() * 100)),
+            3,
+          ).collect(),
       ),
-      new Set(["a", "b", "c", "d", "e", "f"]),
+      new Set(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]),
     );
   },
 });
