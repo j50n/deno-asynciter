@@ -59,30 +59,38 @@ export async function* concurrentUnorderedMap<T, U>(
 ): AsyncIterableIterator<U> {
   const c = resolvedConcurrency(concurrency);
 
-  const buffBack: Esimorp<U>[] = [];
-  const buffAwait: Esimorp<U>[] = [];
+  /*
+   * Two queues. The same Esimorps are pushed into each in the same order.
+   * The shifts are done at different times - one at the backend (aft) when
+   * a promise is resolved, and one at the frontend (fore) when the result
+   * of that promise can be yielded.
+   *
+   * Kind of hard to see how it works, but it was an "Aha!" moment for me.
+   */
+  const buffAft: Esimorp<U>[] = [];
+  const buffFore: Esimorp<U>[] = [];
 
   for await (const item of items) {
-    if (buffAwait.length >= c) {
-      yield await buffAwait.shift()!.promise;
+    if (buffFore.length >= c) {
+      yield await buffFore.shift()!.promise;
     }
 
     const p: Esimorp<U> = esimorp();
-    buffBack.push(p);
-    buffAwait.push(p);
+    buffAft.push(p);
+    buffFore.push(p);
 
     (async () => {
       try {
         const transItem = await mapFn(item);
-        buffBack.shift()!.resolve(transItem);
+        buffAft.shift()!.resolve(transItem);
       } catch (e) {
-        buffBack.shift()!.reject(e);
+        buffAft.shift()!.reject(e);
       }
     })();
   }
 
-  while (buffAwait.length > 0) {
-    yield await buffAwait.shift()!.promise;
+  while (buffFore.length > 0) {
+    yield await buffFore.shift()!.promise;
   }
 }
 
@@ -93,6 +101,9 @@ type Reject = (reason?: any) => void;
 
 type Esimorp<T> = { promise: Promise<T>; resolve: Resolve<T>; reject: Reject };
 
+/**
+ * An unresolved/unrejected promise turned inside-out.
+ */
 function esimorp<T>(): Esimorp<T> {
   let rs: Resolve<T>;
   let rj: Reject;

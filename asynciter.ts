@@ -1,5 +1,5 @@
 import { collect } from "./collect.ts";
-import { concurrentUnorderedMap, concurrentMap } from "./concurrent-map.ts";
+import { concurrentMap, concurrentUnorderedMap } from "./concurrent-map.ts";
 import { filter } from "./filter.ts";
 import { first } from "./first.ts";
 import { forEach } from "./for-each.ts";
