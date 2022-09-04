@@ -8,6 +8,9 @@ Is that so wrong?
 This little library exposes both functions and a fluent-style wrapper so I can
 write my lazy code the way I want to: lazily.
 
+It also supports easy in-order and out-of-order concurrent execution - with
+limits.
+
 ## Quickstart
 
 Here are some simple examples to get you started.
