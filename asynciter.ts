@@ -16,6 +16,39 @@ async function* toAsyncIterable<T>(
   yield* items;
 }
 
+export interface IAsyncIter<T> {
+  [Symbol.asyncIterator](): AsyncGenerator<T, void, unknown>;
+
+  map<U>(mapFn: (item: T) => U | Promise<U>): AsyncIter<U>;
+
+  concurrentMap<U>(
+    mapFn: (item: T) => Promise<U>,
+    concurrency?: number,
+  ): AsyncIter<U>;
+
+  concurrentUnorderedMap<U>(
+    mapFn: (item: T) => Promise<U>,
+    concurrency?: number,
+  ): AsyncIter<U>;
+
+  filter(
+    filterFn: (item: T) => boolean | Promise<boolean>,
+  ): AsyncIter<T>;
+
+  reduce<U>(
+    zero: U,
+    reduceFn: (acc: U, item: T) => U | Promise<U>,
+  ): Promise<U>;
+
+  forEach(
+    forEachFn: (item: T) => void | Promise<void>,
+  ): Promise<void>;
+
+  first(): Promise<T | null>;
+
+  collect(): Promise<T[]>;
+}
+
 /**
  * Convert an array or a standard {@link AsyncIterable} to an {@link AsyncIter}.
  * @param items A collection of items.
@@ -30,7 +63,7 @@ export function asynciter<T>(
 /**
  * A decorator for `AsyncIterable`.
  */
-export class AsyncIter<T> implements AsyncIterable<T> {
+export class AsyncIter<T> implements AsyncIterable<T>, IAsyncIter<T> {
   protected iterator: AsyncIterable<T>;
 
   /**
