@@ -58,19 +58,8 @@ export function asynciter<T>(
   return new AsyncIter(items);
 }
 
-/**
- * A decorator for `AsyncIterable`.
- */
-export class AsyncIter<T> implements IAsyncIter<T> {
-  protected iterator: AsyncIterable<T>;
-
-  /**
-   * Constructor.
-   * @param iterable The wrapped iterable.
-   */
-  constructor(iterable: Iterable<T> | AsyncIterable<T> | Array<T>) {
-    this.iterator = toAsyncIterable(iterable);
-  }
+export abstract class AbstractAsyncIter<T> implements IAsyncIter<T> {
+  protected abstract readonly iterator: AsyncIterable<T>;
 
   public async *[Symbol.asyncIterator](): AsyncGenerator<T, void, unknown> {
     for await (const item of this.iterator) {
@@ -188,5 +177,22 @@ export class AsyncIter<T> implements IAsyncIter<T> {
    */
   public async collect(): Promise<T[]> {
     return await collect(this.iterator);
+  }
+}
+
+/**
+ * A decorator for `AsyncIterable`.
+ */
+export class AsyncIter<T> extends AbstractAsyncIter<T>
+  implements IAsyncIter<T> {
+  protected iterator: AsyncIterable<T>;
+
+  /**
+   * Constructor.
+   * @param iterable The wrapped iterable.
+   */
+  constructor(iterable: Iterable<T> | AsyncIterable<T> | Array<T>) {
+    super();
+    this.iterator = toAsyncIterable(iterable);
   }
 }
