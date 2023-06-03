@@ -86,10 +86,10 @@ export abstract class AbstractAsyncIter<T> implements IAsyncIter<T> {
    * Flatten the iterable.
    * @returns An iterator where a level of indirection has been removed.
    */
-  public flatten(): AsyncIter<T> {
+  public flatten<U>(): AsyncIter<U> {
     const iterable = this.iterator;
     return new AsyncIter(
-      flatten(iterable as AsyncIterable<Iterable<T> | AsyncIterable<T>>),
+      flatten(iterable as AsyncIterable<AsyncIterable<U> | Iterable<U>>),
     );
   }
 
