@@ -2,6 +2,7 @@ import { collect } from "./collect.ts";
 import { concurrentMap, concurrentUnorderedMap } from "./concurrent-map.ts";
 import { filter } from "./filter.ts";
 import { first } from "./first.ts";
+import { flatten } from "./flatten.ts";
 import { forEach } from "./for-each.ts";
 import { map } from "./map.ts";
 import { reduce } from "./reduce.ts";
@@ -79,6 +80,17 @@ export abstract class AbstractAsyncIter<T> implements IAsyncIter<T> {
         yield* map(iterable, mapFn);
       },
     });
+  }
+
+  /**
+   * Flatten the iterable.
+   * @returns An iterator where a level of indirection has been removed.
+   */
+  public flatten(): AsyncIter<T> {
+    const iterable = this.iterator;
+    return new AsyncIter(
+      flatten(iterable as AsyncIterable<Iterable<T> | AsyncIterable<T>>),
+    );
   }
 
   /**
