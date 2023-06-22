@@ -1,3 +1,11 @@
+export function filter<T, U extends T>(
+  iterable: AsyncIterable<T>,
+  filterFn: (item: T) => item is U,
+): AsyncIterableIterator<U>;
+export function filter<T>(
+  iterable: AsyncIterable<T>,
+  filterFn: (item: T) => boolean | Promise<boolean>,
+): AsyncIterableIterator<T>;
 /**
  * Filter the sequence to contain just the items that pass a test.
  * @param iterable An iterable collection.

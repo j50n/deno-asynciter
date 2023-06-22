@@ -30,6 +30,9 @@ export interface IAsyncIter<T> extends AsyncIterable<T> {
     concurrency?: number,
   ): IAsyncIter<U>;
 
+  filter<U extends T>(
+    filterFn: (item: T) => item is U,
+  ): IAsyncIter<U>;
   filter(
     filterFn: (item: T) => boolean | Promise<boolean>,
   ): IAsyncIter<T>;
@@ -137,6 +140,12 @@ export abstract class AbstractAsyncIter<T> implements IAsyncIter<T> {
     });
   }
 
+  filter<U extends T>(
+    filterFn: (item: T) => item is U,
+  ): AsyncIter<U>;
+  filter(
+    filterFn: (item: T) => boolean | Promise<boolean>,
+  ): AsyncIter<T>;
   /**
    * Filter the sequence to contain just the items that pass a test.
    * @param filterFn The filter function.
